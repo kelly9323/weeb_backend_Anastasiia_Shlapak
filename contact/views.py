@@ -5,7 +5,7 @@ from .serializers import ContactSerializer
 import joblib
 import os
 
-
+# View for creating ContactMessage with satisfaction prediction
 class ContactCreateView(generics.CreateAPIView):
     queryset = ContactMessage.objects.all().order_by('-created_at')
     serializer_class = ContactSerializer
@@ -21,7 +21,9 @@ class ContactCreateView(generics.CreateAPIView):
 _satisfaction_model = None
 
 def load_model():
-    """Charge le modèle de satisfaction (chargé une seule fois)"""
+    """
+    Load the pre-trained satisfaction prediction model.
+    """
     global _satisfaction_model
     if _satisfaction_model is None:
         model_path = os.path.join(
@@ -31,15 +33,13 @@ def load_model():
         if os.path.exists(model_path):
             _satisfaction_model = joblib.load(model_path)
         else:
-            # Si le modèle n'existe pas, retourner 0 par défaut
-            print(f"Attention: Modèle non trouvé dans {model_path}")
-            print("Exécutez 'python manage.py shell' puis 'from contact.train_model import train_model; train_model()' pour entraîner le modèle")
+            # If the model file does not exist, log an error
+            print(f"Modèle non trouvé dans {model_path}")
     return _satisfaction_model
 
 def predict_satisfaction(message):
     """
-    Prédit la satisfaction à partir du message
-    Retourne 1 si satisfait, 0 sinon
+    Predict satisfaction score for a given message.
     """
     model = load_model()
     

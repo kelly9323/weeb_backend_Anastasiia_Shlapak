@@ -9,7 +9,7 @@ import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 
-
+# Load dataset from CSV file
 def load_dataset():
     df = pd.read_csv(
         'contact/data/twitter_training.csv',
@@ -18,24 +18,23 @@ def load_dataset():
         names=['id', 'topic', 'sentiment', 'text']
     )
     return df
-
+# Clean and prepare data
 def prepare_data(df):
-    """Prépare les données pour l'entraînement"""
-    # Filtrer les lignes avec des valeurs manquantes
     df = df.dropna(subset=['text', 'sentiment'])
     
-    # Mapper les sentiments : Positive = 1 (satisfait), autres = 0 (non satisfait)
+    # Map sentiment: Positive = 1, Negative/Neutral = 0
     df['satisfaction'] = df['sentiment'].apply(
         lambda x: 1 if x == 'Positive' else 0
     )
     
-    # Séparer les features (texte) et la target (satisfaction)
+    # Separate features and labels
     X = df['text'].astype(str)
     y = df['satisfaction']
     
     return X, y
 
 def get_models():
+    """Return a dictionary of models to evaluate."""
     vectorizer = TfidfVectorizer(
         max_features=5000,
         ngram_range=(1, 2),
@@ -79,14 +78,10 @@ def get_models():
 
     return models
 
-
 def train_model():
+    """Train satisfaction prediction models and save the best one."""
     df = load_dataset()
-    print("Préparation des données")
     X, y = prepare_data(df)
-
-    print(f"Nombre d'exemples: {len(X)}")
-    print(f"Distribution des classes: {y.value_counts().to_dict()}")
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -111,13 +106,13 @@ def train_model():
             best_accuracy = accuracy
             best_model_name = name
             best_model = model
-
+    # Save the best model to a file
     if best_model:
         model_path = os.path.join(
             os.path.dirname(__file__),
             'satisfaction_model.joblib'
         )
         joblib.dump(best_model, model_path)
-        print(f"\nModèle sauvegardé ({best_model_name}) dans: {model_path}")
+        print(f"\nModèle sauvegardé ({best_model_name})")
 
     return best_model
