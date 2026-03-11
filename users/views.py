@@ -76,22 +76,13 @@ class LogoutView(APIView):
     def post(self, request):
         refresh_token = request.data.get('refresh')
         if not refresh_token:
-            return Response(
-                {'detail': 'Refresh token is required.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
         except TokenError:
-            return Response(
-                {'detail': 'Token is invalid or already blacklisted.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        return Response(
-            {'detail': 'Successfully logged out.'},
-            status=status.HTTP_205_RESET_CONTENT,
-        )
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_205_RESET_CONTENT)
 
 
 class PasswordResetRequestView(APIView):
@@ -106,10 +97,8 @@ class PasswordResetRequestView(APIView):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(
-            {'detail': 'If an account with that email exists and is active, a reset link has been sent.'},
-            status=status.HTTP_200_OK,
-        )
+        return Response(status=status.HTTP_200_OK)
+
 
 
 class PasswordResetConfirmView(APIView):
@@ -124,7 +113,5 @@ class PasswordResetConfirmView(APIView):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(
-            {'detail': 'Password has been reset successfully.'},
-            status=status.HTTP_200_OK,
-        )
+        return Response(status=status.HTTP_200_OK)
+
