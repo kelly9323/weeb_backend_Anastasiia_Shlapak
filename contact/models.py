@@ -1,7 +1,10 @@
 from django.db import models
 
+# ContactMessage model representing a contact form message
 class ContactMessage(models.Model):
-    name = models.CharField(max_length=200)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, blank=True, null=True) #optional
     email = models.EmailField()
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

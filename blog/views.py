@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Article
+from .serializers import ArticleSerializer
 
-# Create your views here.
+# ViewSet for managing Articles
+class ArticleViewSet(viewsets.ModelViewSet):
+    queryset = Article.objects.all().order_by('-created_at')
+    serializer_class = ArticleSerializer
