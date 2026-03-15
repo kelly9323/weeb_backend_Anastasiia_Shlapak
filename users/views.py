@@ -90,6 +90,10 @@ class CookieTokenRefreshView(APIView):
         try:
             token = RefreshToken(refresh_token)
             access = str(token.access_token)
+            token.blacklist()
+            token.set_jti()
+            token.set_exp()
+            token.set_iat()
             new_refresh = str(token)
         except TokenError:
             return Response({'detail': 'Invalid or expired refresh token.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -125,7 +129,11 @@ class LogoutView(APIView):
         except TokenError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         response = Response(status=status.HTTP_205_RESET_CONTENT)
-        response.delete_cookie('refresh_token', path='/')
+        response.delete_cookie(
+            'refresh_token',
+            path='/',
+            samesite='None' if not settings.DEBUG else 'Lax',
+        )
         return response
 
 
