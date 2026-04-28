@@ -8,7 +8,7 @@ class IsActiveMember(BasePermission):
     Usage:
         permission_classes = [IsActiveMember]
     """
-    message = 'Your account is not active. Please contact an administrator.'
+    message = 'Le compte doit être activé par un administrateur pour accéder à cette ressource.'
 
     def has_permission(self, request, view):
         return bool(

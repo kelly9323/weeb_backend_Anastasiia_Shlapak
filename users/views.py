@@ -33,7 +33,7 @@ class RegisterView(generics.CreateAPIView):
         user = serializer.save()
         return Response(
             {
-                'message': 'Registration successful. Your account is pending activation by an administrator.',
+                'message': "Inscription réussie. Votre compte est en attente d'activation par un administrateur.",
                 'email': user.email,
             },
             status=status.HTTP_201_CREATED,

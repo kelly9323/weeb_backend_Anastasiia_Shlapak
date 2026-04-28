@@ -20,12 +20,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('A user with this email already exists.')
+            raise serializers.ValidationError('Un utilisateur avec cet e-mail existe déjà.')
         return value
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
-            raise serializers.ValidationError({'password_confirm': 'Passwords do not match.'})
+            raise serializers.ValidationError({'password_confirm': 'Les mots de passe ne correspondent pas.'})
         validate_password(attrs['password'])
         return attrs
 
@@ -57,13 +57,13 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         reset_link = f"http://localhost:5173/password-reset-confirm/{uid}/{token}/"
 
         send_mail(
-            subject='Password Reset Request',
+            subject='Demande de réinitialisation du mot de passe',
             message=(
-                f'Hi {user.first_name},\n\n'
-                f'Click the link below to reset your password:\n'
+                f'Bonjour {user.first_name},\n\n'
+                f'Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe :\n'
                 f'{reset_link}\n\n'
-                f'This link expires in 3 days.\n\n'
-                f'If you did not request a password reset, ignore this email.'
+                f'Ce lien expire dans 3 jours.\n\n'
+                f"Si vous n'avez pas demandé de réinitialisation, ignorez cet e-mail."
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
@@ -80,16 +80,16 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     def validate(self, attrs):
         if attrs['new_password'] != attrs['new_password_confirm']:
             raise serializers.ValidationError(
-                {'new_password_confirm': 'Passwords do not match.'}
+                {'new_password_confirm': 'Les mots de passe ne correspondent pas.'}
             )
         try:
             uid = force_str(urlsafe_base64_decode(attrs['uid']))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            raise serializers.ValidationError({'uid': 'Invalid reset link.'})
+            raise serializers.ValidationError({'uid': 'Lien de réinitialisation invalide.'})
 
         if not default_token_generator.check_token(user, attrs['token']):
-            raise serializers.ValidationError({'token': 'Invalid or expired reset token.'})
+            raise serializers.ValidationError({'token': 'Lien de réinitialisation invalide ou expiré.'})
 
         validate_password(attrs['new_password'], user=user)
         attrs['user'] = user
